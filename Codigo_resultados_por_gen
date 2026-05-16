@@ -1,0 +1,217 @@
+
+## RECORDAR SIEMPRE: Establecer directorio de trabajo
+
+## Cargar librerías
+library(tximport)
+library(DESeq2)
+
+## Definir muestras
+samples <- c("AbrahamSimpson", "HomerSimpson", "LisaSimpson", "BartSimpson", "MaggieSimpson")
+
+## Crear rutas hacia archivos quant.sf
+files <- file.path("Salmon", samples, "quant.sf")
+names(files) <- samples
+
+## Verificar que todos los archivos existan
+file.exists(files)
+
+
+
+## ============================================================
+## ANÁLISIS A NIVEL DE TRANSCRIPTO
+## ============================================================
+
+
+## Importar cuantificaciones de Salmon
+txi <- tximport(files, type = "salmon", txOut = TRUE)
+
+## Definir condición experimental
+condition <- c("Obeso", "Obeso", "Normopeso", "Normopeso", "Normopeso")
+
+## Crear metadata de muestras
+coldata <- data.frame(
+  row.names = samples,
+  condition
+)
+
+## Crear objeto DESeq2
+dds <- DESeqDataSetFromTximport(
+  txi = txi,
+  colData = coldata,
+  design = ~ condition
+)
+
+## Realizar normalización y análisis diferencial
+dds <- DESeq(dds)
+
+## estimating size factors =	normalización entre muestras
+## estimating dispersions =	variabilidad biológica
+## mean-dispersion relationship =	ajuste estadístico
+## fitting model and testing =	comparación Obeso vs Normopeso
+
+## Exportar matriz de transcriptos sin normalizar
+write.csv(
+  as.data.frame(txi$counts),
+  file = "matriz_transcriptos_counts.csv"
+)
+
+## Exportar matriz de transcriptos normalizada
+write.csv(
+  as.data.frame(counts(dds, normalized = TRUE)),
+  file = "matriz_transcriptos_normalizada_por_DESeq2.csv"
+)
+
+## Obtener resultados de expresión diferencial a nivel de transcripto
+results <- results(dds)
+
+## Visualizar resultados
+head(results)
+
+## log2FoldChange positivo = sobreexpresión en Obeso
+## log2FoldChange negativo = sobreexpresión en Normopeso
+
+## Exportar resultados de expresión diferencial a nivel de transcripto
+write.csv(
+  as.data.frame(results),
+  file = "DESeq2_results_transcriptos.csv"
+)
+
+## Obtener matriz normalizada de transcriptos
+normalized_counts <- counts(dds, normalized = TRUE)
+
+## Transponer matriz para tener individuos en filas
+normalized_t <- as.data.frame(t(normalized_counts))
+
+## Agregar variable categórica de grupo
+normalized_t$Grupo <- condition
+
+## Exportar matriz normalizada con individuos en filas
+write.csv(
+  normalized_t,
+  file = "matriz_transcriptos_normalizada__por_DESeq2_individuos.csv"
+)
+
+## Leer matriz normalizada
+norm_matrix <- read.csv("matriz_transcriptos_normalizada__por_DESeq2_individuos.csv")
+
+## Renombrar primera columna como Individuo
+colnames(norm_matrix)[1] <- "Individuo"
+
+## Verificar estructura final
+head(norm_matrix[, 1:5])
+table(norm_matrix$Grupo)
+
+
+
+
+
+
+
+
+## ============================================================
+## ANOTACIÓN TRANSCRIPTO → GEN
+## ============================================================
+
+## Leer tabla oficial transcripto-gen
+annotation <- read.delim(
+  "Transcrito_a_Gen.tsv",
+  header = FALSE
+)
+
+## Renombrar columnas
+colnames(annotation) <- c("Transcript", "Gene")
+
+## Verificar estructura de la anotación
+head(annotation)
+str(annotation)
+
+## Convertir resultados transcriptómicos DESeq2 a dataframe
+results_df <- as.data.frame(results)
+
+## Convertir nombres de fila en columna
+results_df$Transcript <- rownames(results_df)
+
+## Unir resultados transcriptómicos con anotación génica
+results_annotated <- merge(
+  results_df,
+  annotation,
+  by = "Transcript"
+)
+
+## Visualizar resultados transcriptómicos anotados
+head(results_annotated)
+
+## Exportar resultados transcriptómicos anotados
+write.csv(
+  results_annotated,
+  file = "DESeq2_results_transcriptos_anotados.csv",
+  row.names = FALSE
+)
+
+
+
+
+
+
+
+## ============================================================
+## ANÁLISIS A NIVEL DE GEN
+## ============================================================
+
+## Leer tabla transcripto-gen
+tx2gene <- read.delim(
+  "Transcrito_a_Gen.tsv",
+  header = FALSE
+)
+
+## Nombrar columnas
+colnames(tx2gene) <- c("Transcript", "Gene")
+
+## Revisar tabla transcripto-gen
+head(tx2gene)
+
+## Importar cuantificaciones de Salmon agrupadas por gen
+txi_gene <- tximport(
+  files,
+  type = "salmon",
+  tx2gene = tx2gene
+)
+
+## Revisar matriz de conteos a nivel de gen
+head(txi_gene$counts)
+dim(tx2gene)
+head(tx2gene, 20)
+
+## Crear objeto DESeq2 a nivel de gen
+dds_gene <- DESeqDataSetFromTximport(
+  txi = txi_gene,
+  colData = coldata,
+  design = ~ condition
+)
+
+## Ejecutar análisis diferencial a nivel de gen
+dds_gene <- DESeq(dds_gene)
+
+## Obtener resultados por gen
+results_gene <- results(dds_gene)
+
+## Visualizar resultados por gen
+head(results_gene)
+
+## Exportar resultados por gen
+write.csv(
+  as.data.frame(results_gene),
+  file = "DESeq2_results_genes.csv"
+)
+
+## Exportar matriz de genes sin normalizar
+write.csv(
+  as.data.frame(txi_gene$counts),
+  file = "matriz_genes_counts.csv"
+)
+
+## Exportar matriz de genes normalizada
+write.csv(
+  as.data.frame(counts(dds_gene, normalized = TRUE)),
+  file = "matriz_genes_normalizada_por_DESeq2.csv"
+)
