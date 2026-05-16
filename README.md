@@ -6,5 +6,5 @@ Los productos de amplificación obtenidos mediante secuenciación Illumina, en f
 # Pasos de Salmon
 Posteriormente, se realizó el pseudoalineamiento y la cuantificación de las lecturas mediante Salmon, utilizando el transcriptoma de referencia proporcionado. Para ello, primero se generó un índice transcriptómico y luego se procesaron las lecturas paired-end con los parámetros por defecto y detección automática del tipo de librería (-l A). Como resultado, se obtuvieron los archivos quant.sf correspondientes a cada una de las muestras analizadas.
 
-
-
+# Análisis de expresión diferencial
+Los archivos quant.sf obtenidos mediante Salmon fueron importados en R utilizando tximport para generar la matriz de expresión de las muestras analizadas. Posteriormente, se realizó el análisis de expresión diferencial mediante DESeq2, comparando el grupo obesidad/sobrepeso con el grupo normopeso. El análisis permitió identificar transcriptos con diferencias de expresión entre ambos grupos, obteniendo valores de cambio de expresión (log2FoldChange) y significancia estadística (pvalue y padj).
