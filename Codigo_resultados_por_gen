@@ -1,5 +1,8 @@
+## Procesamiento de resultado Salmon a Dataframe de expresión génica
 
-## RECORDAR SIEMPRE: Establecer directorio de trabajo
+## RECORDAR SIEMPRE:
+## Establecer directorio de trabajo
+setwd("C:/Users/bqlui/OneDrive/Escritorio/Master/Secuenciación y ómicas/Actividad2/mubio03_act2")
 
 ## Cargar librerías
 library(tximport)
@@ -9,11 +12,11 @@ library(DESeq2)
 samples <- c("AbrahamSimpson", "HomerSimpson", "LisaSimpson", "BartSimpson", "MaggieSimpson")
 
 ## Crear rutas hacia archivos quant.sf
-files <- file.path("Salmon", samples, "quant.sf")
-names(files) <- samples
+ruta <- file.path("Salmon", samples, "quant.sf")
+names(ruta) <- samples
 
 ## Verificar que todos los archivos existan
-file.exists(files)
+file.exists(ruta)
 
 
 
@@ -21,24 +24,23 @@ file.exists(files)
 ## ANÁLISIS A NIVEL DE TRANSCRIPTO
 ## ============================================================
 
-
 ## Importar cuantificaciones de Salmon
-txi <- tximport(files, type = "salmon", txOut = TRUE)
+txi <- tximport(ruta, type = "salmon", txOut = TRUE)
 
 ## Definir condición experimental
-condition <- c("Obeso", "Obeso", "Normopeso", "Normopeso", "Normopeso")
+condicion <- c("Obeso", "Obeso", "Normopeso", "Normopeso", "Normopeso")
 
 ## Crear metadata de muestras
 coldata <- data.frame(
   row.names = samples,
-  condition
+  condicion
 )
 
 ## Crear objeto DESeq2
 dds <- DESeqDataSetFromTximport(
   txi = txi,
   colData = coldata,
-  design = ~ condition
+  design = ~ condicion
 )
 
 ## Realizar normalización y análisis diferencial
@@ -62,44 +64,44 @@ write.csv(
 )
 
 ## Obtener resultados de expresión diferencial a nivel de transcripto
-results <- results(dds)
+resultados <- results(dds)
 
 ## Visualizar resultados
-head(results)
+head(resultados)
 
 ## log2FoldChange positivo = sobreexpresión en Obeso
 ## log2FoldChange negativo = sobreexpresión en Normopeso
 
 ## Exportar resultados de expresión diferencial a nivel de transcripto
 write.csv(
-  as.data.frame(results),
-  file = "DESeq2_results_transcriptos.csv"
+  as.data.frame(resultados),
+  file = "DESeq2_resultados_transcriptos.csv"
 )
 
 ## Obtener matriz normalizada de transcriptos
-normalized_counts <- counts(dds, normalized = TRUE)
+normalizado_counts <- counts(dds, normalized = TRUE)
 
 ## Transponer matriz para tener individuos en filas
-normalized_t <- as.data.frame(t(normalized_counts))
+normalizado_t <- as.data.frame(t(normalizado_counts))
 
 ## Agregar variable categórica de grupo
-normalized_t$Grupo <- condition
+normalizado_t$Grupo <- condicion
 
 ## Exportar matriz normalizada con individuos en filas
 write.csv(
-  normalized_t,
+  normalizado_t,
   file = "matriz_transcriptos_normalizada__por_DESeq2_individuos.csv"
 )
 
 ## Leer matriz normalizada
-norm_matrix <- read.csv("matriz_transcriptos_normalizada__por_DESeq2_individuos.csv")
+norm_matriz <- read.csv("matriz_transcriptos_normalizada__por_DESeq2_individuos.csv")
 
 ## Renombrar primera columna como Individuo
-colnames(norm_matrix)[1] <- "Individuo"
+colnames(norm_matriz)[1] <- "Individuo"
 
 ## Verificar estructura final
-head(norm_matrix[, 1:5])
-table(norm_matrix$Grupo)
+head(norm_matriz[, 1:5])
+table(norm_matriz$Grupo)
 
 
 
@@ -113,38 +115,38 @@ table(norm_matrix$Grupo)
 ## ============================================================
 
 ## Leer tabla oficial transcripto-gen
-annotation <- read.delim(
+anotacion <- read.delim(
   "Transcrito_a_Gen.tsv",
   header = FALSE
 )
 
 ## Renombrar columnas
-colnames(annotation) <- c("Transcript", "Gene")
+colnames(anotacion) <- c("Transcrito", "Gen")
 
 ## Verificar estructura de la anotación
-head(annotation)
-str(annotation)
+head(anotacion)
+str(anotacion)
 
 ## Convertir resultados transcriptómicos DESeq2 a dataframe
-results_df <- as.data.frame(results)
+resultados_df <- as.data.frame(resultados)
 
 ## Convertir nombres de fila en columna
-results_df$Transcript <- rownames(results_df)
+resultados_df$Transcrito <- rownames(resultados_df)
 
 ## Unir resultados transcriptómicos con anotación génica
-results_annotated <- merge(
-  results_df,
-  annotation,
-  by = "Transcript"
+resultados_anotados <- merge(
+  resultados_df,
+  anotacion,
+  by = "Transcrito"
 )
 
 ## Visualizar resultados transcriptómicos anotados
-head(results_annotated)
+head(resultados_anotados)
 
 ## Exportar resultados transcriptómicos anotados
 write.csv(
-  results_annotated,
-  file = "DESeq2_results_transcriptos_anotados.csv",
+  resultados_anotados,
+  file = "DESeq2_resultados_transcriptos_anotados.csv",
   row.names = FALSE
 )
 
@@ -159,59 +161,59 @@ write.csv(
 ## ============================================================
 
 ## Leer tabla transcripto-gen
-tx2gene <- read.delim(
+t_a_gen <- read.delim(
   "Transcrito_a_Gen.tsv",
   header = FALSE
 )
 
 ## Nombrar columnas
-colnames(tx2gene) <- c("Transcript", "Gene")
+colnames(t_a_gen) <- c("Transcrito", "Gen")
 
 ## Revisar tabla transcripto-gen
-head(tx2gene)
+head(t_a_gen)
 
 ## Importar cuantificaciones de Salmon agrupadas por gen
-txi_gene <- tximport(
-  files,
+txi_gen <- tximport(
+  ruta,
   type = "salmon",
-  tx2gene = tx2gene
+  tx2gen = t_a_gen
 )
 
 ## Revisar matriz de conteos a nivel de gen
-head(txi_gene$counts)
-dim(tx2gene)
-head(tx2gene, 20)
+head(txi_gen$counts)
+dim(t_a_gen)
+head(t_a_gen, 20)
 
 ## Crear objeto DESeq2 a nivel de gen
-dds_gene <- DESeqDataSetFromTximport(
-  txi = txi_gene,
+dds_gen <- DESeqDataSetFromTximport(
+  txi = txi_gen,
   colData = coldata,
-  design = ~ condition
+  design = ~ condicion
 )
 
 ## Ejecutar análisis diferencial a nivel de gen
-dds_gene <- DESeq(dds_gene)
+dds_gen <- DESeq(dds_gen)
 
 ## Obtener resultados por gen
-results_gene <- results(dds_gene)
+resultados_gen <- results(dds_gen)
 
 ## Visualizar resultados por gen
-head(results_gene)
+head(resultados_gen)
 
 ## Exportar resultados por gen
 write.csv(
-  as.data.frame(results_gene),
-  file = "DESeq2_results_genes.csv"
+  as.data.frame(resultados_gen),
+  file = "DESeq2_resultados_genes.csv"
 )
 
 ## Exportar matriz de genes sin normalizar
 write.csv(
-  as.data.frame(txi_gene$counts),
+  as.data.frame(txi_gen$counts),
   file = "matriz_genes_counts.csv"
 )
 
 ## Exportar matriz de genes normalizada
 write.csv(
-  as.data.frame(counts(dds_gene, normalized = TRUE)),
+  as.data.frame(counts(dds_gen, normalized = TRUE)),
   file = "matriz_genes_normalizada_por_DESeq2.csv"
 )
