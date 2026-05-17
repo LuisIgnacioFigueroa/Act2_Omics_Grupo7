@@ -215,3 +215,271 @@ write.csv(
   as.data.frame(counts(dds_gen, normalized = TRUE)),
   file = "matriz_genes_normalizada_por_DESeq2.csv"
 )
+
+
+
+## Librerías
+library(ComplexHeatmap)
+library(circlize)
+library(ggplot2)
+library(dplyr)
+library(grid)
+set.seed(1234)
+
+#############################
+##### Elaboración de Volcano plot
+#############################
+
+
+
+
+
+
+
+#############################
+##### Elaboración de Complexheatmap
+#############################
+
+
+## Cargar matriz génica normalizada por DESeq2
+df_genes <- read.csv("matriz_genes_normalizada_por_DESeq2.csv")
+
+## Definir nombres de genes
+rownames(df_genes) <- df_genes[,1]
+
+## Eliminar primera columna
+df_genes <- df_genes[,-1]
+
+## Convertir a matriz
+mat <- as.matrix(df_genes)
+
+## Anotación de grupos
+grupo <- c(
+  "Obeso",
+  "Obeso",
+  "Normopeso",
+  "Normopeso",
+  "Normopeso"
+)
+
+ha_col <- HeatmapAnnotation(
+  Grupo = grupo,
+  col = list(
+    Grupo = c(
+      "Obeso" = "indianred",
+      "Normopeso" = "steelblue"
+    )
+  )
+)
+
+## Escala de colores
+rng <- range(mat, na.rm = TRUE)
+mid <- median(mat, na.rm = TRUE)
+
+col_fun <- colorRamp2(
+  c(rng[1], mid, rng[2]),
+  c("#4575B4", "#F7F7F7", "#D73027")
+)
+
+
+
+## Heatmap
+Heatmap(
+  mat,
+  name = "Expresión",
+  top_annotation = ha_col,
+  col = col_fun,
+  cluster_rows = TRUE,
+  cluster_columns = TRUE,
+  show_row_names = TRUE,
+  show_column_names = TRUE,
+  column_title = "Expresión génica",
+  heatmap_legend_param = list(
+    title_gp = gpar(fontsize = 10, fontface = "bold"),
+    labels_gp = gpar(fontsize = 8)
+  )
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################
+##### Elaboración de Forest plot
+#############################
+
+## Cargar datos
+forest_data <- read.csv("DESeq2_resultados_genes.csv")
+colnames(forest_data)[1] <- "Gen"
+
+## Preparar datos
+forest_data <- forest_data %>%
+  mutate(
+    IC_inf = log2FoldChange - 1.96 * lfcSE,
+    IC_sup = log2FoldChange + 1.96 * lfcSE,
+    
+    Significativo = ifelse(
+      padj < 0.05,
+      "padj < 0.05",
+      "No significativo"
+    ),
+    
+    padj_label = paste0(
+      "padj = ",
+      formatC(padj, format = "fg", digits = 3)
+    )
+  )
+
+## Ordenar datos
+forest_plot_data <- forest_data %>%
+  arrange(log2FoldChange)
+
+## Posición fija para los padj
+x_padj <- max(forest_plot_data$IC_sup, na.rm = TRUE) + 0.35
+
+## Forest plot
+ggplot(
+  forest_plot_data,
+  aes(
+    x = log2FoldChange,
+    y = reorder(Gen, log2FoldChange)
+  )
+) +
+  
+  ## Línea vertical en 0
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "gray35",
+    linewidth = 1
+  ) +
+  
+  ## Intervalos de confianza
+  geom_errorbarh(
+    aes(
+      xmin = IC_inf,
+      xmax = IC_sup,
+      color = Significativo
+    ),
+    height = 0.25,
+    linewidth = 1.4
+  ) +
+  
+  ## Puntos
+  geom_point(
+    aes(color = Significativo),
+    size = 4.5
+  ) +
+  
+  ## Etiquetas padj
+  geom_text(
+    aes(
+      x = x_padj,
+      label = padj_label,
+      color = Significativo
+    ),
+    hjust = 0,
+    size = 4.2,
+    show.legend = FALSE
+  ) +
+  
+  ## Colores
+  scale_color_manual(
+    values = c(
+      "padj < 0.05" = "#2C7FB8",
+      "No significativo" = "gray35"
+    )
+  ) +
+  
+  ## Límites del gráfico
+  coord_cartesian(
+    xlim = c(
+      min(forest_plot_data$IC_inf, na.rm = TRUE) - 0.2,
+      x_padj + 1.0
+    ),
+    clip = "off"
+  ) +
+  
+  ## Etiquetas
+  labs(
+    title = "Cambios de expresión génica",
+    x = "log2FoldChange (Obeso vs Normopeso)",
+    y = "Gen",
+    color = "Significancia"
+  ) +
+  
+  ## Tema
+  theme_minimal(base_size = 16) +
+  
+  theme(
+    axis.text.y = element_text(
+      size = 13,
+      color = "black",
+      face = ifelse(
+        forest_plot_data$Significativo[
+          order(forest_plot_data$log2FoldChange)
+        ] == "padj < 0.05",
+        "bold",
+        "plain"
+      )
+    ),
+    
+    axis.text.x = element_text(
+      size = 13,
+      color = "black"
+    ),
+    
+    axis.title = element_text(
+      size = 18,
+      face = "bold",
+      color = "black"
+    ),
+    
+    plot.title = element_text(
+      face = "bold",
+      size = 22,
+      hjust = 0.5
+    ),
+    
+    legend.title = element_text(
+      size = 16,
+      face = "bold"
+    ),
+    
+    legend.text = element_text(
+      size = 14
+    ),
+    
+    legend.key.width = unit(1.8, "cm"),
+    legend.key.height = unit(0.8, "cm"),
+    
+    panel.grid.minor = element_blank(),
+    
+    plot.margin = margin(
+      15,
+      100,
+      15,
+      15
+    )
+  )
+
+
+
+
+
+
+
+
+
