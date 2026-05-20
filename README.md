@@ -14,3 +14,12 @@ Finalmente, los patrones globales de expresión génica fueron visualizados medi
 
 # Enriquecimiento funcional Enrichr-KEGG2026
 El análisis de enriquecimiento de vías KEGG reveló una sobre-representación significativa de rutas biológicas asociadas a la regulación neuroendocrina de la homeostasis energética, incluyendo señalización hormonal, señalización de adipocitoquinas, interacción ligando–receptor neuroactiva, señalización por cAMP y vías de señalización de neurotrofinas. En conjunto, estos resultados sugieren una participación relevante de mecanismos de señalización neuronal hipotalámica y regulación metabólica en los procesos biológicos de los genes analizados.
+
+# OBJETIVO
+Este trabajo tiene como objetivo el análisis de expresión diferencial de genes relacionados con la obesidad a partir de datos mediante RNA-seq. Se comparan y clasifican los grupos de sobrepeso y de normopeso aplicando una comparativa sobre un conjunto de muestras simuladas. Se aplican tecnología de secuenciación masiva procesando miles de fragmentos de cDNA de manera eficiente. Esta estrategia permite avanzar hacia la visualización de datos genómicos, cuantificar e interpretar perfiles de  niveles de expresión en función a la obesidad. 
+<img width="4259" height="39" alt="image" src="https://github.com/user-attachments/assets/4ca402dc-b764-4a43-9a5a-06723ee01d22" />
+
+# Metodologia
+Se utSe generaron datos simulados de RNA-seq para modelar perfiles de expresión génica asociados con la obesidad, imitando lecturas producidas por plataformas de secuenciación Illumina en formato FASTQ. La verificación de calidad, la abundancia a nivel de transcritos se estimó mediante pseudoalineamiento y cuantificación con Salmon, utilizando un índice de transcriptoma de referencia para generar estimaciones de conteos a nivel de transcritos. Los conteos cuantificados se importaron al entorno estadístico R, donde se realizó un análisis de expresión diferencial entre condiciones de obesidad y peso normal utilizando el paquete DESeq2.
+
+<img width="5036" height="39" alt="image" src="https://github.com/user-attachments/assets/09c2f529-83fc-4d26-803e-45346fa81257" />
