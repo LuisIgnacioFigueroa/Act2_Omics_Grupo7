@@ -1,0 +1,17 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	AbrahamSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/AbrahamSimpson_R1_fastqc.zip
+FastQC	all_sections	AbrahamSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/AbrahamSimpson_R2_fastqc.zip
+FastQC	all_sections	BartSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/BartSimpson_R1_fastqc.zip
+FastQC	all_sections	BartSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/BartSimpson_R2_fastqc.zip
+FastQC	all_sections	HomerSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/HomerSimpson_R1_fastqc.zip
+FastQC	all_sections	HomerSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/HomerSimpson_R2_fastqc.zip
+FastQC	all_sections	LisaSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/LisaSimpson_R1_fastqc.zip
+FastQC	all_sections	LisaSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/LisaSimpson_R2_fastqc.zip
+FastQC	all_sections	MaggieSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/MaggieSimpson_R1_fastqc.zip
+FastQC	all_sections	MaggieSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/MaggieSimpson_R2_fastqc.zip
+FastQC	all_sections	MargeSimpson_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/MargeSimpson_R1_fastqc.zip
+FastQC	all_sections	MargeSimpson_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/MargeSimpson_R2_fastqc.zip
+FastQC	all_sections	PattyBouvier_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/PattyBouvier_R1_fastqc.zip
+FastQC	all_sections	PattyBouvier_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/PattyBouvier_R2_fastqc.zip
+FastQC	all_sections	SelmaBouvier_R1	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/SelmaBouvier_R1_fastqc.zip
+FastQC	all_sections	SelmaBouvier_R2	/mnt/c/Bioinfo/rnaseq_project/fastqc_results/SelmaBouvier_R2_fastqc.zip
