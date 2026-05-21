@@ -1,24 +1,107 @@
-# Transcriptómica de genes asociados a obesidad
+# Análisis RNA-seq de Obesidad
 
-# Abstract
-La obesidad corresponde a una condición metabólica multifactorial asociada a alteraciones en la regulación génica y en diversos procesos biológicos relacionados con el metabolismo energético. En el presente trabajo se analizaron datos simulados de RNA-seq con el objetivo de comparar perfiles de expresión génica entre grupos obesidad/sobrepeso y normopeso. Para ello, las lecturas de secuenciación fueron sometidas a control de calidad, cuantificación transcriptómica y análisis de expresión diferencial mediante herramientas bioinformáticas especializadas. Posteriormente, los genes diferencialmente expresados fueron evaluados mediante análisis de enriquecimiento funcional para identificar procesos biológicos y vías de señalización asociadas a obesidad/sobrepeso. Los resultados obtenidos evidenciaron alteraciones en rutas relacionadas con regulación neuroendocrina, señalización metabólica y homeostasis energética. En conjunto, este análisis permitió explorar patrones transcriptómicos asociados a obesidad/sobrepeso y destacar la utilidad de RNA-seq para el estudio de mecanismos moleculares involucrados en enfermedades metabólicas.
+Proyecto de análisis transcriptómico RNA-seq enfocado en la identificación de genes diferencialmente expresados entre muestras con sobrepeso/obesidad y muestras normopeso.
 
-# Metodología
-## Pasos de QC
-Los productos de amplificación obtenidos mediante secuenciación Illumina, en formato .fastq, fueron sometidos a control de calidad de lecturas y bases utilizando FastQC. El análisis incluyó muestras correspondientes al grupo obesidad/sobrepeso y al grupo normopeso (control). Posteriormente, las secuencias fueron filtradas mediante fastp, eliminando nucleótidos de baja calidad en los extremos 5’ y 3’ de las lecturas. Asimismo, se conservaron únicamente lecturas con valores de calidad promedio iguales o superiores a Q30 y una longitud mínima de 35 pares de bases. Los resultados del control de calidad fueron integrados y visualizados mediante MultiQC, observándose valores de calidad Q30 o superiores en todas las muestras analizadas. Además, no se detectó contenido significativo de adaptadores y las secuencias sobrerepresentadas presentaron porcentajes bajos tras el filtrado, inferiores al 1.5% en las muestras analizadas
-Metodologia
-Se generaron datos simulados de RNA-seq para modelar perfiles de expresión génica asociados con la obesidad, imitando lecturas producidas por plataformas de secuenciación Illumina en formato FASTQ. Las lecturas de secuenciación sin procesar fueron sometidas primero a una evaluación de control de calidad utilizando FastQC para evaluar la calidad de secuencia por base, el contenido GC, la contaminación por adaptadores y la distribución de longitud de lectura. Tras la verificación de calidad, la abundancia a nivel de transcritos se estimó mediante pseudoalineamiento y cuantificación con Salmon, utilizando un índice de transcriptoma de referencia para generar estimaciones de conteos a nivel de transcritos. Los conteos cuantificados se importaron al entorno estadístico R, donde se realizó un análisis de expresión diferencial entre condiciones de obesidad y peso normal utilizando el paquete DESeq2, aplicando su normalización estándar (median-of-ratios) y el marco de modelo lineal generalizado binomial negativo, con corrección por pruebas múltiples mediante el procedimiento de Benjamini-Hochberg (valor p ajustado < 0.05). Los genes de interés relacionados con vías de obesidad se visualizaron mediante forest plots y los patrones de expresión se resumieron utilizando el paquete ComplexHeatmap en R.
+---
 
-## Pasos de Salmon
-Posteriormente, se realizó el pseudoalineamiento y la cuantificación de las lecturas mediante Salmon, utilizando el transcriptoma de referencia proporcionado. Para ello, primero se generó un índice transcriptómico y luego se procesaron las lecturas paired-end con los parámetros por defecto y detección automática del tipo de librería (-l A). Como resultado, se obtuvieron los archivos quant.sf correspondientes a cada una de las muestras analizadas.
+# Objetivo
 
-## Análisis de expresión diferencial
-Los archivos quant.sf fueron importados en R utilizando tximport para generar las matrices de expresión transcriptómica. Posteriormente, se realizó el análisis de expresión diferencial mediante DESeq2, comparando el grupo obesidad/sobrepeso con el grupo normopeso. Inicialmente, las cuantificaciones fueron obtenidas a nivel de transcripto; sin embargo, posteriormente los transcriptos fueron resumidos a nivel de gen utilizando una tabla de relación transcripto-gen (tx2gene), con el objetivo de facilitar la interpretación biológica de los resultados. El análisis permitió identificar genes diferencialmente expresados entre ambos grupos, obteniendo valores de cambio de expresión (log2FoldChange) y significancia estadística (pvalue y padj).
-Finalmente, los patrones globales de expresión génica fueron visualizados mediante mapas de calor utilizando la librería ComplexHeatmap en R, empleando los valores normalizados obtenidos por DESeq2. Adicionalmente, se construyeron gráficos tipo forest plot para representar visualmente los cambios de expresión génica y sus intervalos de confianza, destacando aquellos genes con diferencias estadísticamente significativas entre grupos.
+Evaluar diferencias en los perfiles de expresión génica asociadas a obesidad mediante un flujo de trabajo de RNA-seq utilizando herramientas bioinformáticas modernas.
 
-## Enriquecimiento funcional Enrichr-KEGG2026
-El análisis de enriquecimiento de vías KEGG reveló una sobre-representación significativa de rutas biológicas asociadas a la regulación neuroendocrina de la homeostasis energética, incluyendo señalización hormonal, señalización de adipocitoquinas, interacción ligando–receptor neuroactiva, señalización por cAMP y vías de señalización de neurotrofinas. En conjunto, estos resultados sugieren una participación relevante de mecanismos de señalización neuronal hipotalámica y regulación metabólica en los procesos biológicos de los genes analizados.
+---
 
+# Flujo de trabajo
 
+FASTQ → FastQC → MultiQC → Salmon → tximport → DESeq2 → PCA → Heatmap → Volcano Plot
 
+---
+
+# Herramientas utilizadas
+
+## Linux / Entorno
+
+* Ubuntu 24.04 (WSL2)
+* Conda / Bioconda
+
+## Control de calidad
+
+* FastQC
+* MultiQC
+
+## Cuantificación transcriptómica
+
+* Salmon
+
+## Análisis estadístico
+
+* R
+* DESeq2
+* tximport
+
+## Visualización
+
+* pheatmap
+* EnhancedVolcano
+
+---
+
+# Estructura del proyecto
+
+```text
+RNAseq-Obesity-Analysis/
+│
+├── results/
+│   ├── PCA_obesidad.png
+│   ├── Heatmap_obesidad.png
+│   ├── Volcano_obesidad.png
+│   ├── Genes_diferenciales_obesidad.csv
+│   └── Genes_significativos_obesidad.csv
+│
+├── scripts/
+├── metadata/
+├── Design.csv
+├── Transcrito_a_Gen.tsv
+├── README.md
+└── .gitignore
+```
+
+---
+
+# Resultados obtenidos
+
+## PCA
+
+Visualización de agrupamiento entre muestras obesas y normopeso según patrones de expresión génica.
+
+## Heatmap
+
+Mapa de calor de genes con mayor variabilidad entre grupos experimentales.
+
+## Volcano Plot
+
+Identificación visual de genes sobreexpresados y subexpresados.
+
+## Expresión diferencial
+
+Obtención de genes diferencialmente expresados mediante DESeq2.
+
+---
+
+# Metodología general
+
+1. Control de calidad de lecturas RNA-seq.
+2. Resumen de calidad con MultiQC.
+3. Construcción de índice transcriptómico.
+4. Cuantificación de transcritos con Salmon.
+5. Importación de cuantificaciones usando tximport.
+6. Análisis diferencial con DESeq2.
+7. Generación de visualizaciones transcriptómicas.
+
+---
+
+# Autor
+
+Luis Angelo Cruz
+
+Proyecto académico de Bioinformática.
 
